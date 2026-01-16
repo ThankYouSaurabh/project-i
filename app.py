@@ -395,10 +395,23 @@ elif page == "Analysis & Recommendations":
         return float((df[col] < value).mean() * 100)
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Age percentile", f"{pct_less('Age', user['Age']):.1f}% are younger")
-    c2.metric("Duration percentile", f"{pct_less('Duration', user['Duration']):.1f}% do shorter")
-    c3.metric("Heart-rate percentile", f"{pct_less('Heart_Rate', user['Heart_Rate']):.1f}% have lower HR")
-    c4.metric("Body-temp percentile", f"{pct_less('Body_Temp', user['Body_Temp']):.1f}% have lower temp")
+
+    def big_stat(col, title, text):
+        with col:
+            st.markdown(f"#### {title}")
+            st.markdown(
+                f"""
+                <div style="font-size:28px; font-weight:700; line-height:1.15;">
+                    {text}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+    
+    big_stat(c1, "Age percentile",       f"{pct_less('Age', user['Age']):.1f}% are younger")
+    big_stat(c2, "Duration percentile",  f"{pct_less('Duration', user['Duration']):.1f}% do shorter")
+    big_stat(c3, "Heart-rate percentile",f"{pct_less('Heart_Rate', user['Heart_Rate']):.1f}% have lower HR")
+    big_stat(c4, "Body-temp percentile", f"{pct_less('Body_Temp', user['Body_Temp']):.1f}% have lower temp")
 
     st.subheader("Personalized recommendations (rule-based)")
     recs = []
