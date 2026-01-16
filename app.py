@@ -567,12 +567,6 @@ elif page == "Analysis & Recommendations":
 
     st.divider()
     st.subheader("Where you stand (percentile-style comparisons)")
-
-    def pct_less(col: str, value: float) -> float:
-        return float((df[col] < value).mean() * 100)
-
-    st.divider()
-    st.subheader("Where you stand (percentile-style comparisons)")
     
     inject_kpi_css()
     
