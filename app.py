@@ -212,6 +212,56 @@ def big_stat(col, title, text):
         )
 
 
+def inject_kpi_css():
+    st.markdown(
+        """
+        <style>
+        .kpi-card{
+            background: var(--secondary-background-color);
+            border: 1px solid rgba(120,120,120,0.25);
+            border-radius: 14px;
+            padding: 14px 16px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .kpi-title{
+            font-size: 0.95rem;
+            font-weight: 650;
+            color: rgba(120,120,120,1);
+            margin: 0;
+        }
+        .kpi-value{
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0;
+            color: var(--text-color);
+            line-height: 1.0;
+        }
+        .kpi-sub{
+            font-size: 0.95rem;
+            color: rgba(120,120,120,1);
+            margin: 0;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def kpi_card(col, title: str, value: str, subtitle: str):
+    with col:
+        st.markdown(
+            f"""
+            <div class="kpi-card">
+                <p class="kpi-title">{title}</p>
+                <p class="kpi-value">{value}</p>
+                <p class="kpi-sub">{subtitle}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
 # -----------------------------
 # Sidebar: Navigator only
 # -----------------------------
@@ -521,11 +571,26 @@ elif page == "Analysis & Recommendations":
     def pct_less(col: str, value: float) -> float:
         return float((df[col] < value).mean() * 100)
 
-    c1, c2, c3, c4 = st.columns(4)
-    big_stat(c1, "Age percentile", f"{pct_less('Age', user['Age']):.1f}% are younger")
-    big_stat(c2, "Duration percentile", f"{pct_less('Duration', user['Duration']):.1f}% do shorter")
-    big_stat(c3, "Heart-rate percentile", f"{pct_less('Heart_Rate', user['Heart_Rate']):.1f}% have lower HR")
-    big_stat(c4, "Body-temp percentile", f"{pct_less('Body_Temp', user['Body_Temp']):.1f}% have lower temp")
+    st.divider()
+    st.subheader("Where you stand (percentile-style comparisons)")
+    
+    inject_kpi_css()
+    
+    def pct_less(col: str, value: float) -> float:
+        # % of users below your value (same logic you used earlier, but cleaner)
+        return float((df[col] < value).mean() * 100)
+    
+    age_pct = pct_less("Age", user["Age"])
+    dur_pct = pct_less("Duration", user["Duration"])
+    hr_pct  = pct_less("Heart_Rate", user["Heart_Rate"])
+    tmp_pct = pct_less("Body_Temp", user["Body_Temp"])
+    
+    c1, c2, c3, c4 = st.columns(4, gap="medium")
+    
+    kpi_card(c1, "Age", f"{age_pct:.1f}%", "of users are younger than you")
+    kpi_card(c2, "Duration", f"{dur_pct:.1f}%", "of users exercise for less time")
+    kpi_card(c3, "Heart Rate", f"{hr_pct:.1f}%", "of users have a lower heart rate")
+    kpi_card(c4, "Body Temp", f"{tmp_pct:.1f}%", "of users have a lower body temp")
 
     st.divider()
     st.subheader("Recommendations (rule-based)")
